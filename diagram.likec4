@@ -1,0 +1,114 @@
+specification { 
+  element user { style { 
+    shape person 
+    color green  
+  }} 
+
+  element askZamunda { style { 
+    shape browser  
+  }} 
+
+  element frontend { 
+    style { 
+      color amber 
+    } 
+  } 
+
+  element LLM { 
+    style { 
+      color sky
+      icon queue
+    } 
+  } 
+
+  element database {
+    style {
+        shape cylinder
+        color slate
+    }
+  }
+
+  element externalSystem {
+    style {
+      shape rectangle
+      color gray
+    }
+  }
+  
+  element backend {
+    style {
+      shape rectangle
+      color blue
+    }
+  }
+} 
+
+model {
+  // Külső rendszerek
+  taxAuthority = externalSystem "National Tax Authority / Legal Repository" "Official data and changes"
+
+  guestUser = user "Guest user" 
+  admin = user "Government Admin" "Manages system and knowledge base" {
+    systemAdmin = user "System Administrator" "Maintains UI and technical systems"
+    dataAdmin = user "Data Administrator" "Processes and inputs data"
+  }
+  userRegistered = user "Registered user" {
+    individualUser = user "Individual Citizen" "Private tax matters"
+    companyUser = user "Corporate Entity" "Corporate tax matters"
+  }
+
+  askZamunda = askZamunda "Ask Zamunda" { 
+    backend = backend "API & Orchestrator" "REST API"
+    
+    registeredUserFrontend = frontend "Registered User Frontend" "Option to contact the relevant authority via email"
+    guestUserFrontend = frontend "Guest User Frontend" "Option to contact the relevant authority via email"
+    adminFrontend = frontend "Admin Frontend" "Administration interface"
+    
+    llm = LLM "LLM"
+    EmbeddedVectorSpace = database "Vector Database" "Knowledge base (Legislation)"
+  } 
+
+  // A külső rendszer kérései az adminhoz futnak be
+  taxAuthority -> admin "Sends data update request / Change notice"
+
+  // Az admin kezeli ezeket az admin felületen
+  admin -> adminFrontend "Validates and records data"
+  backend -> EmbeddedVectorSpace "Knowledge base update"
+
+  // A felhasználók a saját felületeiket elérik
+  userRegistered -> registeredUserFrontend "Request"
+  guestUser -> guestUserFrontend "Request"
+
+  // Kommunikációs utak
+  registeredUserFrontend -> backend "Forwards request"
+  guestUserFrontend -> backend "Forwards request"
+  adminFrontend -> backend "Update command"
+  
+  backend -> EmbeddedVectorSpace "Context search"
+  backend -> llm "Response generation"
+
+  // RAG folyamat
+  llm -> EmbeddedVectorSpace "RAG"
+
+}
+
+views {  
+
+  view systemContext {  
+    title "System Context"  
+    include * }  
+
+  view of askZamunda {  
+    title "Container Diagram"  
+    include * }  
+
+    view of userRegistered{
+        title "User Types"
+        include *
+    }
+
+    view of admin {
+    title "Admin Types"
+    include *
+  }
+}
