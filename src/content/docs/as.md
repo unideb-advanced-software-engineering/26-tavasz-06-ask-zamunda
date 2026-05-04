@@ -1,3 +1,8 @@
+---
+title: "Architekturális stílus"
+description: "A választott architekturális stílusok leírása."
+---
+
 # Architekturális stílus
 A projekthez választott architekturális stílusok:
 - Service-Based architecture.

@@ -1,3 +1,8 @@
+---
+title: "ADR-02: Service-Based architecture"
+description: "The reason for choosing Service-Based architecture"
+---
+
 # ADR-002: Service-Based architecture
 
 - Status: Active

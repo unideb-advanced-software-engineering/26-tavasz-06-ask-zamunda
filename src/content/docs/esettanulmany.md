@@ -1,3 +1,8 @@
+---
+title: "Esettanulmány: Ask Zamunda"
+description: "Az eredeti esettanulmány."
+---
+
 # 06: Ask Zamunda
 
 ## Háttér

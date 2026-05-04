@@ -17,7 +17,6 @@ specification {
   element LLM { 
     style { 
       color sky
-      icon queue
     } 
   } 
 
@@ -98,9 +97,9 @@ views {
     title "System Context"  
     include * }  
 
-  view of askZamunda {  
+  view askZamunda {  
     title "Container Diagram"  
-    include * }  
+    include askZamunda.* }    
 
     view of userRegistered{
         title "User Types"
