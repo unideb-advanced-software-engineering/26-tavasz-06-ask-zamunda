@@ -29,7 +29,7 @@ export default defineConfig({
         },
         {
           label: "SRS",
-          link: "/srs.doc",
+          link: "/srs.docx",
         },
         {
           label: "Architekturális karakterisztikák",
