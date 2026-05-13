@@ -40,11 +40,22 @@ specification {
       color blue
     }
   }
+
+  // Új elem specifikáció az azonosításhoz
+  element identityProvider {
+    style {
+      shape rectangle
+      color blue
+    }
+  }
 } 
 
 model {
   // Külső rendszerek
   taxAuthority = externalSystem "National Tax Authority / Legal Repository" "Official data and changes"
+  
+  // Új központi azonosítási ügynök (Identity Agent)
+  identityAgent = identityProvider "Central Identity Agent" "Handles OIDC / User Data Encapsulation"
 
   guestUser = user "Guest user" 
   admin = user "Government Admin" "Manages system and knowledge base" {
@@ -59,55 +70,64 @@ model {
   askZamunda = askZamunda "Ask Zamunda" { 
     backend = backend "API & Orchestrator" "REST API"
     
-    registeredUserFrontend = frontend "Registered User Frontend" "Option to contact the relevant authority via email"
-    guestUserFrontend = frontend "Guest User Frontend" "Option to contact the relevant authority via email"
+    registeredUserFrontend = frontend "Registered User Frontend" "Option to contact authority via email"
+    guestUserFrontend = frontend "Guest User Frontend" "Option to contact authority via email"
     adminFrontend = frontend "Admin Frontend" "Administration interface"
     
     llm = LLM "LLM"
     EmbeddedVectorSpace = database "Vector Database" "Knowledge base (Legislation)"
   } 
 
-  // A külső rendszer kérései az adminhoz futnak be
-  taxAuthority -> admin "Sends data update request / Change notice"
+  // --- ÚJ FOLYAMATOK ---
+  
+  // A regisztrált felhasználó az ügynökön keresztül azonosít
+  userRegistered -> identityAgent "Authenticates & Manages Personal Data"
+  
+  // Az ügynök csak egy tokent vagy biztonságos azonosítót ad a frontendnek
+  identityAgent -> registeredUserFrontend "Secure Token / Auth Session"
 
-  // Az admin kezeli ezeket az admin felületen
+  // A backend is ellenőrizheti az ügynökkel a jogosultságot, ha kell
+  backend -> identityAgent "Validates user session"
+
+  // --- EREDETI FOLYAMATOK ---
+
+  taxAuthority -> admin "Sends data update request / Change notice"
   admin -> adminFrontend "Validates and records data"
   backend -> EmbeddedVectorSpace "Knowledge base update"
 
-  // A felhasználók a saját felületeiket elérik
   userRegistered -> registeredUserFrontend "Request"
   guestUser -> guestUserFrontend "Request"
 
-  // Kommunikációs utak
   registeredUserFrontend -> backend "Forwards request"
   guestUserFrontend -> backend "Forwards request"
   adminFrontend -> backend "Update command"
   
   backend -> EmbeddedVectorSpace "Context search"
   backend -> llm "Response generation"
-
-  // RAG folyamat
   llm -> EmbeddedVectorSpace "RAG"
-
 }
 
 views {  
 
   view systemContext {  
-    title "System Context"  
-    include * }  
+    title "System Context with Identity Agent"  
+    include * 
+  }  
 
   view askZamunda {  
     title "Container Diagram"  
-    include askZamunda.* }    
+    include askZamunda.* 
+    include identityAgent
+  }    
 
-    view of userRegistered{
-        title "User Types"
-        include *
-    }
+  view of userRegistered {
+    title "User Types & Identity Access"
+    include userRegistered.*
+    include identityAgent
+  }
 
-    view of admin {
+  view of admin {
     title "Admin Types"
-    include *
+    include admin.*
   }
 }

@@ -3,8 +3,6 @@ title: "ADR-01: Hybrid Architecture"
 description: "A választott architekturális stílusok leírása."
 ---
 
-# ADR-001: Hybrid Architecture
-
 - Status: Active
 
 In the context of

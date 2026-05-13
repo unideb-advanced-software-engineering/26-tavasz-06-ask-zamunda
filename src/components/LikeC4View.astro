@@ -1,19 +1,114 @@
 ---
-import { LikeC4View as ReactLikeC4View, type LikeC4ViewId } from 'likec4:react';
+import { LikeC4View, type LikeC4ViewId } from 'likec4:react';
+
 interface Props {
   viewId: LikeC4ViewId;
 }
-const { viewId } = Astro.props
+
+const { viewId } = Astro.props;
+const title = viewId.split('_').join(' ').toUpperCase();
 ---
 
-<ReactLikeC4View
-  viewId={viewId}
-  {/* Configure view */}
-  controls={false}
-  browser={{
-    // options for likec4 browser
-    enableFocusMode: false,
-    enableSearch: false,
-  }}
-  client:only="react">
-</ReactLikeC4View>
+<div class="c4-wrapper">
+  <div class="c4-header-bar">
+    <h2>{title}</h2>
+  </div>
+
+  <div class="c4-container light-only">
+    <LikeC4View
+      viewId={viewId}
+      interactive={true}
+      browser={true}
+      controls={false}
+      showpkg={false}
+      showNavigation={false}
+      colorScheme="light"
+      width={-1}
+      height={-1}
+      client:only="react"
+    />
+  </div>
+
+  <div class="c4-container dark-only">
+    <LikeC4View
+      viewId={viewId}
+      interactive={true}
+      browser={true}
+      controls={false}
+      showpkg={false}
+      showNavigation={false}
+      colorScheme="dark"
+      width={-1}
+      height={-1}
+      client:only="react"
+    />
+  </div>
+</div>
+
+<style>
+  .c4-wrapper {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 2rem 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .c4-header-bar {
+    padding: 0.75rem 1.25rem;
+    background: #8eb8ff;
+    color: white;
+    border-bottom: 2px solid #000000;
+  }
+
+  .c4-header-bar h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .c4-container {
+    width: 100%;
+    height: 600px;
+  }
+
+  /* TÉMA LOGIKA */
+  .dark-only, .light-only { display: none; }
+
+  :global([data-theme='light']) .light-only { display: block; }
+  :global([data-theme='light']) .c4-container { background: #ffffff; }
+
+  :global([data-theme='dark']) .dark-only { display: block; }
+  :global([data-theme='dark']) .c4-container { background: #1e1e1e; }
+  :global([data-theme='dark']) .c4-wrapper { border-color: #444; }
+  :global([data-theme='dark']) .c4-header-bar { background: #2563eb; border-bottom-color: #ffffff; }
+</style>
+
+<style is:global>
+  /* FÓKUSZ MÓD (BROWSER) FIXÁLÁSA */
+
+  /* Világos mód kényszerítése */
+  :global([data-theme='light']) {
+    --xy-background-color-default: #ffffff !important;
+    --likec4-browser-bg: #ffffff !important;
+  }
+
+  /* Sötét mód kényszerítése */
+  :global([data-theme='dark']) {
+    --xy-background-color-default: #1e1e1e !important;
+    --likec4-browser-bg: #1e1e1e !important;
+  }
+
+  /* Overlay háttér színe a változó alapján */
+  .likec4-browser-overlay, 
+  .likec4-view-browser,
+  [data-likec4-browser],
+  .react-flow__pane {
+    background-color: var(--xy-background-color-default) !important;
+  }
+
+  /* Pöttyök eltávolítása */
+  .react-flow__background { display: none !important; }
+</style>
