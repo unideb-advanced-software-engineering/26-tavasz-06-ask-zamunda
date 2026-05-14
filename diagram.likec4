@@ -1,29 +1,34 @@
-specification { 
-  element user { style { 
-    shape person 
-    color green  
-  }} 
+specification {
+  element user {
+    style {
+      shape person
+      color green
+    }
+  }
 
-  element askZamunda { style { 
-    shape browser  
-  }} 
+  element askZamunda {
+    style {
+      shape browser
+    }
+  }
 
-  element frontend { 
-    style { 
-      color amber 
-    } 
-  } 
+  element frontend {
+    style {
+      color amber
+    }
+  }
 
-  element LLM { 
-    style { 
+  element llmService {
+    style {
+      shape rectangle
       color sky
-    } 
-  } 
+    }
+  }
 
   element database {
     style {
-        shape cylinder
-        color slate
+      shape cylinder
+      color slate
     }
   }
 
@@ -33,7 +38,7 @@ specification {
       color gray
     }
   }
-  
+
   element backend {
     style {
       shape rectangle
@@ -41,87 +46,132 @@ specification {
     }
   }
 
-  // Új elem specifikáció az azonosításhoz
   element identityProvider {
     style {
       shape rectangle
       color blue
     }
   }
-} 
 
-model {
-  // Külső rendszerek
-  taxAuthority = externalSystem "National Tax Authority / Legal Repository" "Official data and changes"
-  
-  // Új központi azonosítási ügynök (Identity Agent)
-  identityAgent = identityProvider "Central Identity Agent" "Handles OIDC / User Data Encapsulation"
-
-  guestUser = user "Guest user" 
-  admin = user "Government Admin" "Manages system and knowledge base" {
-    systemAdmin = user "System Administrator" "Maintains UI and technical systems"
-    dataAdmin = user "Data Administrator" "Processes and inputs data"
+  element messageQueue {
+    style {
+      shape queue
+      color green
+    }
   }
-  userRegistered = user "Registered user" {
-    individualUser = user "Individual Citizen" "Private tax matters"
-    companyUser = user "Corporate Entity" "Corporate tax matters"
-  }
-
-  askZamunda = askZamunda "Ask Zamunda" { 
-    backend = backend "API & Orchestrator" "REST API"
-    
-    registeredUserFrontend = frontend "Registered User Frontend" "Option to contact authority via email"
-    guestUserFrontend = frontend "Guest User Frontend" "Option to contact authority via email"
-    adminFrontend = frontend "Admin Frontend" "Administration interface"
-    
-    llm = LLM "LLM"
-    EmbeddedVectorSpace = database "Vector Database" "Knowledge base (Legislation)"
-  } 
-
-  // --- ÚJ FOLYAMATOK ---
-  
-  // A regisztrált felhasználó az ügynökön keresztül azonosít
-  userRegistered -> identityAgent "Authenticates & Manages Personal Data"
-  
-  // Az ügynök csak egy tokent vagy biztonságos azonosítót ad a frontendnek
-  identityAgent -> registeredUserFrontend "Secure Token / Auth Session"
-
-  // A backend is ellenőrizheti az ügynökkel a jogosultságot, ha kell
-  backend -> identityAgent "Validates user session"
-
-  // --- EREDETI FOLYAMATOK ---
-
-  taxAuthority -> admin "Sends data update request / Change notice"
-  admin -> adminFrontend "Validates and records data"
-  backend -> EmbeddedVectorSpace "Knowledge base update"
-
-  userRegistered -> registeredUserFrontend "Request"
-  guestUser -> guestUserFrontend "Request"
-
-  registeredUserFrontend -> backend "Forwards request"
-  guestUserFrontend -> backend "Forwards request"
-  adminFrontend -> backend "Update command"
-  
-  backend -> EmbeddedVectorSpace "Context search"
-  backend -> llm "Response generation"
-  llm -> EmbeddedVectorSpace "RAG"
 }
 
-views {  
+model {
+  // --- Külső szereplők és rendszerek ---
 
-  view systemContext {  
-    title "System Context with Identity Agent"  
-    include * 
-  }  
+  taxAuthority = externalSystem "National Tax Authority / Legal Repository" "Official legislation data and change notices"
 
-  view askZamunda {  
-    title "Container Diagram"  
-    include askZamunda.* 
-    include identityAgent
-  }    
+  identityAgent = identityProvider "Central Identity Agent" "Handles OIDC / User Data Encapsulation"
+
+  guestUser = user "Guest User"
+
+  userRegistered = user "Registered User" {
+    individualUser = user "Individual Citizen" "Private tax and legal matters"
+    companyUser    = user "Corporate Entity"  "Corporate tax and regulatory matters"
+  }
+
+  admin = user "Government Admin" "Manages system and knowledge base" {
+    systemAdmin = user "System Administrator" "Maintains UI and technical systems"
+    dataAdmin   = user "Data Administrator"   "Processes and uploads legislation documents"
+  }
+
+  // --- Az Ask Zamunda rendszer (C4 Level 2 – Container diagram) ---
+
+  askZamunda = askZamunda "Ask Zamunda" {
+
+    // Frontendek
+    guestUserFrontend      = frontend "Guest User Frontend"      "Chat UI for unauthenticated users"
+    registeredUserFrontend = frontend "Registered User Frontend" "Chat UI with saved sessions and escalation"
+    adminFrontend          = frontend "Admin Frontend"           "Document management and system administration"
+
+    // Háttérszolgáltatások (SBA)
+    chatService = backend "Chat Service" "Handles chat requests, streaming responses, session management"
+    docService  = backend "Document Ingestion Service" "Validates, processes and publishes new legislation documents"
+
+    // EDA – eseményvezérelt dokumentumfeldolgozás
+    eventBus = messageQueue "Event Bus" "Async document processing pipeline (e.g. Kafka)"
+
+    // Dokumentumvektorizáló (fogyasztó az Event Bus-ról)
+    vectorizer = backend "Document Vectorizer" "Chunks, embeds and indexes documents into the Vector DB"
+
+    // LLM és tudásbázis
+    llm      = llmService "LLM"             "Generates streaming answers based on retrieved context"
+    vectorDb = database   "Vector Database" "Knowledge base – indexed legislation (RAG)"
+  }
+
+  // --- System Context összefüggések (C4 Level 1) ---
+
+  // Felhasználók a rendszerrel
+  guestUser      -> askZamunda "Sends chat questions"
+  userRegistered -> askZamunda "Sends chat questions; manages saved sessions"
+  admin          -> askZamunda "Uploads and manages legislation documents"
+
+  // Human-in-the-loop: a külső hatóság az Adminnak küldi a dokumentumokat,
+  // az Admin validál és tölt fel – a hatóságnak nem kell megtanulni a rendszert
+  taxAuthority -> admin "Sends legislation documents / change notices"
+
+  // Azonosítás
+  userRegistered -> identityAgent "Authenticates & manages personal data"
+  identityAgent  -> askZamunda   "Issues secure token / auth session"
+
+  // --- Container összefüggések (C4 Level 2) ---
+
+  // Frontendek → Chat Service
+  guestUserFrontend      -> chatService "Forwards chat request (REST/SSE)"
+  registeredUserFrontend -> chatService "Forwards chat request (REST/SSE)"
+
+  // Chat Service → LLM + Vector DB (RAG folyamat)
+  chatService -> vectorDb "Retrieves relevant legislation chunks (semantic search)"
+  chatService -> llm      "Sends prompt + retrieved context"
+  llm         -> chatService "Streams generated answer back"
+
+  // Admin felület → Document Ingestion Service (az Admin validál és tölt fel)
+  adminFrontend -> docService "Uploads validated document (REST)"
+
+  // Document Ingestion Service → Event Bus (EDA belépési pont)
+  docService -> eventBus "Publishes DocumentUploaded event"
+
+  // Event Bus → Vectorizer (aszinkron fogyasztó)
+  eventBus -> vectorizer "Delivers DocumentUploaded event"
+
+  // Vectorizer → Vector DB (index frissítés)
+  vectorizer -> vectorDb "Indexes new document chunks"
+
+  // Azonosítás a backend felé
+  identityAgent -> chatService "Issues secure token / auth session"
+  chatService   -> identityAgent "Validates user session"
+}
+
+views {
+
+  view systemContext {
+    title "System Context – Ask Zamunda"
+    include
+      guestUser,
+      userRegistered,
+      admin,
+      taxAuthority,
+      askZamunda,
+      identityAgent
+  }
+
+  view askZamunda of askZamunda {
+    title "Container Diagram – Ask Zamunda"
+    include
+      askZamunda.*,
+      identityAgent,
+      admin,
+      guestUser,
+      userRegistered
+  }
 
   view of userRegistered {
-    title "User Types & Identity Access"
+    title "Registered User Types"
     include userRegistered.*
     include identityAgent
   }
