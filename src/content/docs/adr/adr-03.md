@@ -1,24 +1,32 @@
 ---
-title: "ADR-03: Central Identity Agent for Data Privacy"
-description: "The reason for implementing a Central Identity Agent"
+title: "ADR-03: Central Identity Agent"
+description: "Central Identity Agent bevezetésének indoklása"
 ---
 
-- Status: Active
 
-In the context of
-- handling sensitive personal data of citizens and corporate entities,
-- and the integration of Large Language Models (LLM) which should not process PII (Personally Identifiable Information).
+- Státusz: Aktív
 
-facing the need for
-- strict GDPR compliance and data encapsulation,
-- and a unified authentication layer across different frontends (Guest, Registered, Admin).
+**Abban a kontextusban, hogy**
+- zamundai állampolgárok és vállalkozások személyes adatainak kezelése,
+- LLM modellek integrációja, amelyek nem dolgozhatnak fel személyes azonosításra alkalmas adatokat.
 
-we decided for
-- implementing a Central Identity Agent to act as a secure gateway between users and the core system.
+**szembesülve azzal, hogy**
+- szigorú GDPR szabályoknak való megfelelés,
+- valamint egységes hitelesítési réteg szükségessége a különböző felületek között (Vendég, Regisztrált és Adminisztrátori szerepkörök).
 
-achieving
-- full decoupling of personal identity from the AI-driven RAG (Retrieval-Augmented Generation) process,
-- and centralized session management with secure token exchange.
+**amellett döntöttünk, hogy**
+- Central Identity Agent bevezetése, amely biztonságos átjáróként működik a felhasználók és a rendszer többi eleme között.
 
-accepting that
-- increased architectural complexity and an additional network hop for authentication requests.
+**elvetve azt, hogy**
+- Elosztott hitelesítés: minden szolgáltatás saját maga kezeli a felhasználói identitást.
+- LLM hozzáférés felhasználói adatokhoz: a személyes adatok szűrés nélkül kerülnének a felhőalapú LLM-ekhez, ami GDPR szempontból elfogadhatatlan.
+
+**elérve ezzel azt, hogy**
+- a személyes identitás teljes leválasztása az LLM RAG folyamattól,
+- központi munkamenet kezelés,
+- minden LLM-nek szánt prompt szűrésre kerül, mielőtt elhagyná a rendszert.
+
+**elfogadva azt a hátrányt, hogy**
+- megnövekedett architekturális komplexitás,
+- a hitelesítés egy extra lépéssel lassítja a kérések kiszolgálását.
+

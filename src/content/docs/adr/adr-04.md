@@ -1,24 +1,32 @@
 ---
-title: "ADR-04: Admin-Mediated Data Ingestion"
-description: "Decision to use internal administrators for processing external authority requests"
+title: "ADR-04: Admin által jóváhagyott dokumentumfeltöltés"
+description: "Belső adminisztrátorok alkalmazásának indoklása a külső hatóságok dokumentumainak feldolgozásához."
 ---
 
-- Status: Active
+- Státusz: Aktív
 
-In the context of
-- receiving frequent legislative updates and change notices from external bodies like the National Tax Authority,
-- and maintaining a high-quality, structured Vector Database for the RAG process.
+**Abban a kontextusban, hogy**
+- külső hatóságoktól rendszeres jogszabályfrissítések és változásértesítők érkeznek,
+- a RAG folyamat számára magas minőségű, strukturált tudásbázist kell fenntartani.
 
-facing the need for
-- minimizing the technical burden on external authorities,
-- and ensuring that only validated, correctly formatted data enters the system's knowledge base.
+**szembesülve azzal, hogy**
+- minimalizálni kell a külső hatóságokra háruló technikai terhet,
+- kizárólag validált, megfelelően formázott dokumentumok kerülhetnek a tudásbázisba.
 
-we decided for
-- an architecture where external authorities only provide raw data/notices, which are then manually or semi-automatically processed and recorded by internal Ask Zamunda Administrators.
+**amellett döntöttünk, hogy**
+- olyan feltöltési folyamat alkalmazása, amelyben a külső hatóságok csak a nyers dokumentumokat juttatják el a rendszerbe,
+- a formai és metaadat szintű validálást belső adminisztrátorok végzik, a vektorizálást ezt követően a rendszer automatikusan elvégzi,
+- az adminisztrátorok felelnek az elavult dokumentumok frissítéséért és archiválásáért is.
 
-achieving
-- zero requirement for external partners to learn or integrate with our internal system schemas,
-- and improved data integrity through human validation before the Vector Database update.
+**elvetve azt, hogy**
+- Állami hatóságok közvetlen feltöltése a tudásbázisba: technikai integrációt és onboardingot igényelne minden állami szerv részéről.
+- Teljesen automatizált feldolgozás: formai és metaadat szintű emberi ellenőrzés nélkül a rendszer nem tudná garantálni a tudásbázis konzisztenciáját.
 
-accepting that
-- an internal administrative team must be maintained, and the data update process is not fully automated from source to database.
+**elérve ezzel azt, hogy**
+- az állami hatóságok számára nincs szükség bonyolult onboarding tartására,
+- formai és metaadat szintű ellenőrzés garantálja a tudásbázis konzisztenciáját,
+- az elavult dokumentumok kezelése és archiválása kontrollált keretek között történik.
+
+**elfogadva azt a hátrányt, hogy**
+- belső adminisztrátori csapatot kell fenntartani,
+- a dokumentumok megjelenése a tudásbázisban lassabb egy teljesen automatizált megoldásnál.
