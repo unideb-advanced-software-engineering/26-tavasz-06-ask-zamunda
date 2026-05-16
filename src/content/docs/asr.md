@@ -3,7 +3,6 @@ title: "Architekturálisan szignifikáns követelmények"
 description: "Az Ask Zamunda ASR-einek felsorolása és indoklása."
 ---
 
-# Architekturálisan szignifikáns követelmények
 
 ## 1. Teljesítmény és Hálózati Optimalizáció
 
