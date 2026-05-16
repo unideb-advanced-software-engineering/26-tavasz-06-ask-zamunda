@@ -35,7 +35,7 @@ description: "Az azonosított architekturális karakterisztikák."
 - https://quality.arc42.org/qualities/correctness
 
 **Miért fontos?**
-A rendszer különböző jogszabályokra vonatkozó kérdésekről ad tájékoztatást, ahol a helytelen válaszok problémás következményekkel járhatnak. A nagy nyelvi modellek hajlamosak a hallucinációra, ezért a hiteles válaszok érdekében a rendszer által adott válaszokat vissza kell tudni vezetni a forrásukra.
+- A rendszer különböző jogszabályokra vonatkozó kérdésekről ad tájékoztatást, ahol a helytelen válaszok problémás következményekkel járhatnak. A nagy nyelvi modellek hajlamosak a hallucinációra, ezért a hiteles válaszok érdekében a rendszer által adott válaszokat vissza kell tudni vezetni a forrásukra.
 
 ## Költséghatékonyság
 
@@ -43,4 +43,4 @@ A rendszer különböző jogszabályokra vonatkozó kérdésekről ad tájékozt
 - https://quality.arc42.org/qualities/affordability
 
 **Miért fontos?**
-Az ország pénzügyi takarékossági céljait figyelembvéve a rendszer tervezésénél a költséghatékonyság fontos szempontnak számít.
+- Az ország pénzügyi takarékossági céljait figyelembvéve a rendszer tervezésénél a költséghatékonyság fontos szempontnak számít.
