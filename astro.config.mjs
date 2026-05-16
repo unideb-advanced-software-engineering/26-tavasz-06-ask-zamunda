@@ -14,7 +14,7 @@ export default defineConfig({
   },
   integrations: [
     starlight({
-      title: "My Docs",
+      title: "Ask Zamunda",
       social: [
         {
           icon: "github",
