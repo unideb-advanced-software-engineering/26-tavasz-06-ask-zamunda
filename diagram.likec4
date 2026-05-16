@@ -66,7 +66,7 @@ model {
 
   taxAuthority = externalSystem "National Tax Authority / Legal Repository" "Official legislation data and change notices"
 
-  identityAgent = identityProvider "Central Identity Agent" "Handles OIDC / User Data Encapsulation"
+  identityAgent = identityProvider "Central Identity Agent" "User Data"
 
   guestUser = user "Guest User"
 
@@ -86,7 +86,7 @@ model {
 
     // Frontendek
     guestUserFrontend      = frontend "Guest User Frontend"      "Chat UI for unauthenticated users"
-    registeredUserFrontend = frontend "Registered User Frontend" "Chat UI with saved sessions and escalation"
+    registeredUserFrontend = frontend "Registered User Frontend" "Chat UI with saved sessions"
     adminFrontend          = frontend "Admin Frontend"           "Document management and system administration"
 
     // Háttérszolgáltatások (SBA)
@@ -94,7 +94,7 @@ model {
     docService  = backend "Document Ingestion Service" "Validates, processes and publishes new legislation documents"
 
     // EDA – eseményvezérelt dokumentumfeldolgozás
-    eventBus = messageQueue "Event Bus" "Async document processing pipeline (e.g. Kafka)"
+    eventBus = messageQueue "Event Bus" "Async document processing pipeline"
 
     // Dokumentumvektorizáló (fogyasztó az Event Bus-ról)
     vectorizer = backend "Document Vectorizer" "Chunks, embeds and indexes documents into the Vector DB"
@@ -106,18 +106,18 @@ model {
 
   // --- System Context összefüggések (C4 Level 1) ---
 
-  // Felhasználók a rendszerrel
-  guestUser      -> askZamunda "Sends chat questions"
-  userRegistered -> askZamunda "Sends chat questions; manages saved sessions"
-  admin          -> askZamunda "Uploads and manages legislation documents"
+  // Felhasználók a rendszer felületeivel
+  guestUser      -> guestUserFrontend "Chats anonymously"
+  userRegistered -> registeredUserFrontend "Chats and manages chat history"
+  admin          -> adminFrontend "Uploads documents and manages system"
 
   // Human-in-the-loop: a külső hatóság az Adminnak küldi a dokumentumokat,
   // az Admin validál és tölt fel – a hatóságnak nem kell megtanulni a rendszert
-  taxAuthority -> admin "Sends legislation documents / change notices"
+  taxAuthority -> admin "Sends legislation documents / change notices via API or web surface"
 
   // Azonosítás
   userRegistered -> identityAgent "Authenticates & manages personal data"
-  identityAgent  -> askZamunda   "Issues secure token / auth session"
+  identityAgent  -> askZamunda   "Provide secure token / auth session"
 
   // --- Container összefüggések (C4 Level 2) ---
 
@@ -143,7 +143,7 @@ model {
   vectorizer -> vectorDb "Indexes new document chunks"
 
   // Azonosítás a backend felé
-  identityAgent -> chatService "Issues secure token / auth session"
+  identityAgent -> chatService "Provide secure token / auth session"
   chatService   -> identityAgent "Validates user session"
 }
 
