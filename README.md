@@ -3,5 +3,5 @@
 ## Csapattagok:
 
 - Magura Áron - maguraaron
-- Madár László - L4C11
-- Horváth László - thor9086
+- Madár László Adrián - L4C11
+- Horváth László Zoltán - thor9086
